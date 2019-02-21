@@ -11,7 +11,7 @@ int main (int argc, char **argv)
     //initialize parameters
     N = 64;
     NMAX = 64;
-    KMAX = 4;
+    KMAX = 3;
     W = 1.0/16.0;
     
     V = alloc2double(NMAX, KMAX + 1);
