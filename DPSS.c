@@ -193,7 +193,6 @@ void DPSS(int NMAX, int KMAX, int N, float W, double **V)
         
         //ensure tapers satisfy Slepian convention
         SPOL(N, U, K);
-            
         
         for (J = 0; J < N; J++)
         {

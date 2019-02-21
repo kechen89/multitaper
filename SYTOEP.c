@@ -16,9 +16,8 @@ void SYTOEP(int N, double *R, double *G, double *F, double *W)
      
      OUTPUT:
          F       filter
-         IFAULT  0 indicates successful
-                 1 if N < 1
      */
+    
     int L, J;
     double V, D, Q;
     
@@ -35,18 +34,18 @@ void SYTOEP(int N, double *R, double *G, double *F, double *W)
         
         if (L > 1)
         {
-            L1 = (L-1)/2;
-            L2 = L1+1;
+            L1 = (L - 1)/2;
+            L2 = L1 + 1;
+            
             if (L != 2)
             {
-                for (J = 1; J <L2; J++)
+                for (J = 1; J < L2; J++)
                 {
                     HOLD = W[J];
                     K = L - J;
                     W[J] = W[J] + W[L]*W[K];
                     W[K] = W[K] + W[L]*HOLD;
                 }
-                
             }//end if
             
             if ((2*L1 != L-1) || L == 2) W[L2] = W[L2] + W[L]*W[L2];
@@ -56,15 +55,17 @@ void SYTOEP(int N, double *R, double *G, double *F, double *W)
         V = V + W[L]*D;
         F[L] = (G[L] - Q)/V;
         
-        for (J=0; J<L; J++)
+        for (J = 0; J < L; J++)
         {
             K = L - J;
             F[J] = F[J] + F[L]*W[K];
         }
+        
         if (L == N - 1) exit(0);
         
-        D = 0;
-        Q = 0;
+        D = 0.0;
+        Q = 0.0;
+        
         for (I = 0; I < L; I++)
         {
             K = L - I + 1;
