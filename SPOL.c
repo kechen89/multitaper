@@ -17,15 +17,18 @@ void SPOL(int N, double *V, int K)
          V      dpss conforming to Slepian's polarity convention
      */
     
+    int L;
+    double DSUM, DWSUM;
+    
     DSUM = 0.0;
-    DWSUN = 0.0;
+    DWSUM = 0.0;
     
     for (L = 0; L < N; L++)
     {
         DSUM += V[L];
         DWSUM += V[L]*(N - 1.0 - 2.0*(L));
         
-        if ( ((K%2) == 0 && (DSUM < 0.0)) || ((K%2) == 1) && (DSUM < 0.0))
+        if ( ((K%2) == 0 && (DSUM < 0.0)) || ((K%2) == 1 && (DSUM < 0.0)))
         {
             for (L = 0; L < N; L++)
             {

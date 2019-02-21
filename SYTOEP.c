@@ -18,14 +18,14 @@ void SYTOEP(int N, double *R, double *G, double *F, double *W)
          F       filter
      */
     
-    int L, J;
-    double V, D, Q;
+    int L, J, K, I, L1, L2;
+    double V, D, Q, HOLD;
     
     V = R[0];
     F[0] = G[0] / V;
     
     D = R[1];
-    W[0] = 1.0；
+    W[0] = 1.0;
     Q = F[0] * R[1];
     
     for (L = 1; L < N; L++)

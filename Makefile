@@ -4,7 +4,9 @@ CC = mpicc      #Open MPI Wrapper compiler
 
 LFLAGS = -lm  #math library flag
 
-SRC =    DPSS.c                  \
+SRC =    SYTOEP.c                \
+         SPOL.c                  \
+         DPSS.c                  \
          Util.c                  \
          main.c
 

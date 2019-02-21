@@ -19,7 +19,8 @@ void DPSS(int NMAX, int KMAX, int N, float W, double **V)
  */
     int IT;
     int MAXIT;
-    int J, JJ, K, M, ISIG, ILOW, IHIG;
+    int J, JJ, K, K1, M, ISIG, ILOW, IHIG;
+    double PROJ, SNORM, SSNORM, SUM, DIFF, DELTA, EPS = 1e-6;
     double *SINES, *VOLD, *U, *SCR1, *SIG;
     
     SINES = alloc1double(N);
@@ -185,7 +186,7 @@ void DPSS(int NMAX, int KMAX, int N, float W, double **V)
             }
             else
             {
-                SIG(K) = SIG(K-1) + 1.0/SSNORM;
+                SIG[K] = SIG[K-1] + 1.0/SSNORM;
                 
             }
             
