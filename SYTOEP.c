@@ -18,7 +18,7 @@ void SYTOEP(int N, double *R, double *G, double *F, double *W)
          F       filter
      */
     
-    int L, J, K, I, L1, L2;
+    int L, J, K, I, L1, L2,L3;
     double V, D, Q, HOLD;
     
     V = R[0];
@@ -28,50 +28,52 @@ void SYTOEP(int N, double *R, double *G, double *F, double *W)
     W[0] = 1.0;
     Q = F[0] * R[1];
     
-    for (L = 1; L < N; L++)
+    for (L = 2; L <= N; L++)
     {
-        W[L] = -D/V;
+        W[L-1] = -D/V;
         
-        if (L > 1)
+        if (L > 2)
         {
-            L1 = (L - 1)/2;
+            L1 = (L - 2)/2;
             L2 = L1 + 1;
             
-            if (L != 2)
+            if (L != 3)
             {
-                for (J = 1; J < L2; J++)
+                for (J = 2; J <= L2; J++)
                 {
-                    HOLD = W[J];
-                    K = L - J;
-                    W[J] = W[J] + W[L]*W[K];
-                    W[K] = W[K] + W[L]*HOLD;
+                    HOLD = W[J-1];
+                    K = L - J + 1;
+                    W[J-1] = W[J-1] + W[L-1]*W[K-1];
+                    W[K-1] = W[K-1] + W[L-1]*HOLD;
                 }
             }//end if
             
-            if ((2*L1 != L-1) || L == 2) W[L2] = W[L2] + W[L]*W[L2];
+            if ((2*L1 != L-2) || L == 3) W[L2] = W[L2] + W[L-1]*W[L2];
         
         }//end if
         
-        V = V + W[L]*D;
-        F[L] = (G[L] - Q)/V;
-        
-        for (J = 0; J < L; J++)
+        V = V + W[L-1]*D;
+        F[L-1] = (G[L-1] - Q)/V;
+        L3 = L-1;
+        for (J = 1; J <= L3; J++)
         {
-            K = L - J;
-            F[J] = F[J] + F[L]*W[K];
+            K = L - J + 1;
+            F[J-1] = F[J-1] + F[L-1]*W[K-1];
         }
         
-        if (L == N - 1) exit(0);
-        
+        if (L < N)
+        {
         D = 0.0;
         Q = 0.0;
         
-        for (I = 0; I < L; I++)
+        for (I = 1; I <= L; I++)
         {
-            K = L - I + 1;
-            D = D + W[I]*R[K];
-            Q = Q + F[I]*R[K];
+            K = L - I + 2;
+            D = D + W[I-1]*R[K-1];
+            Q = Q + F[I-1]*R[K-1];
         }
+        
+       }//end if
     }
-    return;
+
 }

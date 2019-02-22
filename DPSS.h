@@ -12,7 +12,7 @@ double *alloc1double(int n);
 
 double **alloc2double(int n1, int n2);
 
-void DPSS(int NMAX, int KMAX, int N, float W, double **V);
+void DPSS(int NMAX, int KMAX, int N, double W, double **V);
 
 void SYTOEP(int N, double *R, double *G, double *F, double *W);
 

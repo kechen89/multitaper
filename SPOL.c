@@ -23,19 +23,17 @@ void SPOL(int N, double *V, int K)
     DSUM = 0.0;
     DWSUM = 0.0;
     
-    for (L = 0; L < N; L++)
+    for (L = 1; L <= N; L++)
     {
-        DSUM += V[L];
-        DWSUM += V[L]*(N - 1.0 - 2.0*(L));
+        DSUM += V[L-1];
+        DWSUM += V[L-1]*(N - 1.0 - 2.0*(L-1));
         
-        if ( ((K%2) == 0 && (DSUM < 0.0)) || ((K%2) == 1 && (DSUM < 0.0)))
+        if ( ((K%2) == 0 && (DSUM < 0.0)) || ((K%2) == 1 && (DWSUM < 0.0)))
         {
-            for (L = 0; L < N; L++)
+            for (L = 1; L <=N; L++)
             {
-                V[L] = -V[L];
+                V[L-1] = -V[L-1];
             }
         }
     }
-    
-    return;
 }

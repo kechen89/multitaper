@@ -1,6 +1,6 @@
 #include "DPSS.h"
 
-void DPSS(int NMAX, int KMAX, int N, float W, double **V)
+void DPSS(int NMAX, int KMAX, int N, double W, double **V)
 {
 /*
  Calculate Discrete Prolate Spheroidal Sequences (DPSS)
@@ -19,7 +19,7 @@ void DPSS(int NMAX, int KMAX, int N, float W, double **V)
  */
     int IT;
     int MAXIT;
-    int J, JJ, K, K1, M, ISIG, ILOW, IHIG;
+    int I, J, JJ, K, K1, M, ISIG, ILOW, IHIG;
     double PROJ, SNORM, SSNORM, SUM, DIFF, DELTA, EPS = 1e-6;
     double *SINES, *VOLD, *U, *SCR1, *SIG;
     
@@ -29,6 +29,14 @@ void DPSS(int NMAX, int KMAX, int N, float W, double **V)
     SCR1 = alloc1double(N);
     SIG = alloc1double(KMAX + 1);
     
+    for (I = 0; I < N; I++)
+    {
+        SINES[I] = VOLD[I] = U[I] = SCR1[I] = 0.0;
+    }
+    for (I = 0; I < KMAX+1; I++)
+    {
+        SIG[I] = 0.0;
+    }
     
     //Check input parameters
     if (W > 0.5)
@@ -77,21 +85,22 @@ void DPSS(int NMAX, int KMAX, int N, float W, double **V)
         
         // Define starting vector for inverse iteration
         ISIG = 1;
+        K1 = K+1;
         
-        for (J = 0; J <= K; J++)
+        for (J = 1; J <= K1; J++)
         {
-            ILOW = J * N / (K + 1);
-            IHIG = (J + 1) * N / (K + 1) - 1;
+            ILOW = (J-1) * N / K1 + 1;
+            IHIG = J * N / K1;
             
             for (JJ = ILOW; JJ <= IHIG; JJ++)
             {
-                U[JJ] = ISIG * (1.0 / sqrt(N));
+                U[JJ-1] = ISIG * (1.0 / sqrt(N));
             }
             
             ISIG = -1 * ISIG;
         }
         
-        if ((K % 2) > 0 && (N % 2) > 0) U[N/2 + 1] = 0.0;    //K is odd, N is odd
+        if ((K % 2) > 0 && (N % 2) > 0) U[N/2] = 0.0;    //K is odd, N is odd
         
         /*Verified*/
         
@@ -116,16 +125,16 @@ void DPSS(int NMAX, int KMAX, int N, float W, double **V)
             {
                 for (K1 = 0; K1 < K; K1++)
                 {
-                    //projection of U onto V[*][K1]
+                    //projection of U onto V[K1][*]
                     PROJ = 0.0;
                     for (J = 0; J < N; J++)
                     {
-                        PROJ = PROJ + U[J]*V[J][K1];
+                        PROJ = PROJ + U[J]*V[K1][J];
                     }
                     //subtract projection
                     for (J = 0; J < N; J++)
                     {
-                        U[J] = U[J] - PROJ*V[J][K1];
+                        U[J] = U[J] - PROJ*V[K1][J];
                     }
                 } //end for K1
             } //end if
@@ -197,8 +206,9 @@ void DPSS(int NMAX, int KMAX, int N, float W, double **V)
         
         for (J = 0; J < N; J++)
         {
-            V[J][K] = U[J];
+            V[K][J] = U[J];
         }
         
     } //end for K
+    
 }

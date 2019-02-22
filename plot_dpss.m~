@@ -1,0 +1,11 @@
+clc;
+clear;
+close all;
+
+fileID = fopen('DPSS.bin','rb');
+A = fread(fileID,'double');
+plot(A);
+for i =1:31
+    B(i)=A(2*i+1)
+end
+figure;plot
