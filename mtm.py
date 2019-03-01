@@ -42,6 +42,7 @@ def shift_signal(d, delay):
     return s
 
 
+from scipy import signal
 import numpy as np
 import math
 import cmath
@@ -65,4 +66,33 @@ plt.plot(t,d,'r')
 plt.plot(t,s,'b')
 plt.xlabel('Time (s)')
 plt.ylabel('Amplitude')
+plt.title('Observed and synthetic data')
 plt.show()
+
+#window signal 4-9s
+d = d[2000:4500]
+s = s[2000:4500]
+t = np.arange(2000*dt,4500*dt,dt)
+print(len(t))
+plt.plot(t,d,'r')
+plt.plot(t,s,'b')
+plt.xlabel('Time (s)')
+plt.ylabel('Amplitude')
+plt.title('Windowed observed and synthetic data')
+plt.show()
+
+#DPSS
+M = len(d)
+NW = 2.5
+Kmax = 5
+dpss = signal.windows.dpss(M, NW, Kmax)
+for i in range(0, Kmax):
+    plt.plot(t,dpss[i,:])
+plt.xlabel('Time (s)')
+plt.ylabel('Amplitude')
+plt.title('First five 2.5pi DPSS')
+plt.show()
+
+#Multitaper misfit
+
+
