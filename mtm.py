@@ -19,6 +19,28 @@ def ricker(f, dt):
     
     return w
 
+def shift_signal(d, delay):
+    """
+    Shift a signal by time delay
+    """
+    nextpow2 = math.ceil(math.log2(nt))
+    nfft = int(math.pow(2, nextpow2))
+    D = np.fft.fft(d,nfft)
+    S = np.zeros(nfft, dtype=complex)
+
+    for i in range(0, round(nfft/2)):
+        w = 2.0*math.pi*i/nfft/dt
+        Shift = cmath.exp(-1j*w*delay)
+        S[i] = D[i]*Shift
+
+    # frequency domain symmetries
+    for i in range(1,round(nfft/2)-1):
+        S[nfft - i] = np.conjugate(S[i])
+
+    s = np.fft.ifft(S)
+    s = np.real(s[0:nt])
+    return s
+
 
 import numpy as np
 import math
@@ -36,33 +58,11 @@ wavelet = ricker(f, dt)
 d = np.zeros(nt)
 d[round(nt/2)] = 1.0
 d = np.convolve(d,wavelet,'same')
-#plt.plot(d)
-#plt.show()
 
-#time shift
-nfft = int(math.pow(2, math.ceil(math.log2(nt))))
-D = np.fft.fft(d,nfft)
+s= shift_signal(d, 1.0)
 
-S = np.zeros(nfft, dtype=complex)
-delay = 1.0
-for i in range(0, round(nfft/2)):
-    w = 2.0*math.pi*i/nfft/dt
-    Shift = cmath.exp(-1j*w*delay)
-    S[i] = D[i]*Shift
-
-# frequency domain symmetries
-for i in range(1,round(nfft/2)-1):
-    S[nfft - i] = np.conjugate(S[i])
-
-s = np.fft.ifft(S)
-s = np.real(s[0:nt])
-print(len(s))
 plt.plot(t,d,'r')
 plt.plot(t,s,'b')
+plt.xlabel('Time (s)')
+plt.ylabel('Amplitude')
 plt.show()
-
-
-
-    
-
-
