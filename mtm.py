@@ -73,7 +73,7 @@ plt.show()
 d = d[2000:4500]
 s = s[2000:4500]
 t = np.arange(2000*dt,4500*dt,dt)
-print(len(t))
+nt = len(t)
 plt.plot(t,d,'r')
 plt.plot(t,s,'b')
 plt.xlabel('Time (s)')
@@ -93,6 +93,52 @@ plt.ylabel('Amplitude')
 plt.title('First five 2.5pi DPSS')
 plt.show()
 
-#Multitaper misfit
+#fft parameters
+f0 = 0.0
+nextpow2 = math.ceil(math.log2(nt))
+nfft = int(math.pow(2, nextpow2))
+df = 1.0/(nfft*dt)
+dw = 2*math.pi*df
+fnum = int(nfft/2) + 1
+ntaper = Kmax
 
+#Transfer function
+wtr = 1.0e-10
+T = np.zeros(fnum, dtype=complex)
+A = np.zeros(fnum, dtype=complex)
+B = np.zeros(fnum, dtype=complex)
+
+for i in range(0, ntaper-1):
+    #apply taper
+    dtp = d*dpss[i,:]
+    stp = s*dpss[i,:]
+    #FFT
+    DTP = np.fft.fft(dtp,nfft)
+    STP = np.fft.fft(stp,nfft)
+    #
+    for k in range(0,fnum):
+        A[k] = A[k] + DTP[k] * np.conjugate(STP[i])
+        B[k] = B[k] + STP[k] * np.conjugate(STP[i])
+
+    plt.plot(t,dtp)
+    plt.xlabel('Time (s)')
+    plt.ylabel('Amplitude')
+    plt.title('DPSS tapered observed data')
+plt.show()
+
+for k in range(0,fnum):
+    T[k] = A[k] / B[k]
+
+#calculate phase
+tau = np.zeros(fnum)
+
+for k in range(0,fnum):
+    tau[k] =math.atan2(T[k].imag, T[k].real)
+
+faxis = np.arange(0,fnum)*df
+plt.plot(faxis,tau)
+plt.xlabel('Frequency')
+plt.ylabel('Time delay')
+plt.title('Frequency-dependent time delay')
+plt.show()
 
