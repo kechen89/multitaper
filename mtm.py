@@ -1,7 +1,6 @@
 from scipy import signal
 import numpy as np
 import math
-import cmath
 import matplotlib.pyplot as plt
 from ricker import ricker
 from shift import shift
@@ -10,16 +9,16 @@ from shift import shift
 tmax = 12
 dt = 0.002
 nt = math.floor(tmax/dt) + 1
-tdelay = 0.0
-print(nt)
 t = np.linspace(0,tmax,nt)
 f = 1.0
-wavelet = ricker(f, dt)
 
+wavelet = ricker(f, dt)
 d = np.zeros(nt)
 d[round(nt/2)] = 1.0
-d = np.convolve(d,wavelet,'same')
-s= shift(d, dt, tdelay)
+d = np.convolve(d,wavelet,'same')  #observed data
+
+tdelay = 0.0
+s= shift(d, dt, tdelay)            #synthetic data
 
 plt.plot(t,d,'r')
 plt.plot(t,s,'b')
@@ -33,10 +32,11 @@ plt.show()
 # 3 - Windowing
 n1 = 2800
 n2 = 3200
-d = d[n1:n2]
-s = s[n1:n2]
-t = np.arange(n1*dt,n2*dt,dt)
+d = d[n1:n2]    # d[n1] -> d[n2-1]
+s = s[n1:n2]    # s[n1] -> s[n2-1]
+t = np.arange(n1*dt,n2*dt,dt) # n1*dt -> (n2-1)*dt
 nt = len(t)
+
 plt.plot(t,d,'r')
 plt.plot(t,s,'b')
 plt.xlabel('Time (s)')
