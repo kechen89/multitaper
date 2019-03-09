@@ -1,39 +1,16 @@
-from ricker import ricker
-
-def shift_signal(d, delay):
-    """
-    Shift a signal by time delay
-    """
-    nextpow2 = math.ceil(math.log2(nt))
-    nfft = int(math.pow(2, nextpow2))
-
-    D = np.fft.fft(d,nfft)
-    S = np.zeros(nfft, dtype=complex)
-
-    for i in range(0, round(nfft/2) + 1):
-        w = 2.0*math.pi*i/nfft/dt
-        Shift = cmath.exp(-1j*w*delay)
-        S[i] = D[i]*Shift
-
-    # frequency domain symmetries
-    for i in range(1,round(nfft/2)):
-        S[nfft - i] = np.conjugate(S[i])
-
-    s = np.fft.ifft(S)
-    s = np.real(s[0:nt])
-    return s
-
-
 from scipy import signal
 import numpy as np
 import math
 import cmath
 import matplotlib.pyplot as plt
+from ricker import ricker
+from shift import shift
 
 # 1 - Read/synthetize data
 tmax = 12
 dt = 0.002
 nt = math.floor(tmax/dt) + 1
+tdelay = 0.0
 print(nt)
 t = np.linspace(0,tmax,nt)
 f = 1.0
@@ -42,9 +19,7 @@ wavelet = ricker(f, dt)
 d = np.zeros(nt)
 d[round(nt/2)] = 1.0
 d = np.convolve(d,wavelet,'same')
-
-tdelay = 0.0
-s= shift_signal(d, tdelay)
+s= shift(d, dt, tdelay)
 
 plt.plot(t,d,'r')
 plt.plot(t,s,'b')
