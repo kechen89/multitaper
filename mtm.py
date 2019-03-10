@@ -57,7 +57,8 @@ f0 = 0.0
 df = 1.0/(nfft*dt)
 dw = 2*math.pi*df
 fnum = int(nfft/2) + 1
-w = np.zeros(nfft)
+
+w = np.zeros(nfft)    # angular frequency vector
 w[0:fnum] = dw * np.arange(0,fnum)
 w[fnum:nfft] = dw * np.arange(-fnum + 2, 0)
 
@@ -67,6 +68,7 @@ NW = 2.5
 Kmax = 5
 ntaper = Kmax
 dpss = signal.windows.dpss(M, NW, Kmax)
+
 for i in range(0, Kmax):
     plt.plot(t,dpss[i,:])
 plt.xlabel('Time (s)')
