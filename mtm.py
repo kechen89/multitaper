@@ -135,14 +135,17 @@ plt.show()
 WTR = 0.02
 ampmax = 0.0
 k_amp_max = 0
+
 for k in range(0, fnum):
     if  abs(S[k]) > ampmax:
         ampmax =  abs(S[k])
         k_amp_max = k
+
 wtr_level = ampmax * WTR    # water level value to stablize
 
 fmax = fnum
 fmax_stop = 0
+
 for k in range(0, fnum):
     if abs(S[k]) <= wtr_level and fmax_stop == 0 and k > k_amp_max:
         fmax_stop = 1
@@ -150,6 +153,7 @@ for k in range(0, fnum):
     if abs(S[k]) >= 10.0 * wtr_level and fmax_stop == 1 and k > k_amp_max:
         fmax_stop = 0
         fmax = k
+
 print('Stopping frequency index',fmax)
 print('Stopping frequency',fmax*df, 'Hz')
 
@@ -161,7 +165,7 @@ ntaper = Kmax
 dpss = signal.windows.dpss(M, NW, Kmax)
 
 for i in range(0, Kmax):
-     plt.plot(t,dpss[i,:])
+    plt.plot(t,dpss[i,:])
 plt.xlabel('Time (s)')
 plt.ylabel('Amplitude')
 plt.title('DPSS')
@@ -194,12 +198,14 @@ plt.show()
 wtr = 1e-2     #water level
 ampmax = 0.0
 i_amp_max = 1
+
 for k in range(0, fnum):
     if  abs(B[k]) > ampmax:
         ampmax =  abs(B[k])
         i_amp_max = k
 epsilon = ampmax * wtr**2    # water level value to stablize
 print(epsilon)
+
 for k in range(0, fnum):
     if abs(B[k]) > epsilon:
         T[k] = A[k] / B[k]
@@ -209,6 +215,7 @@ for k in range(0, fnum):
 #calculate phase
 phase = np.zeros(fmax)
 dtau = np.zeros(fmax)
+
 for k in range(0,fmax):
     phase[k] = math.atan2(T[k].imag, T[k].real)
 
@@ -217,6 +224,7 @@ plt.plot(waxis,phase)
 plt.title('Phase')
 plt.xlabel('Angular frequency')
 plt.show()
+
 # phase correction
 # phase correction parameters, between (PI, 2PI), use a higher value for conservative phase wrapping
 PHASE_STEP = 1.5 * math.pi
@@ -237,6 +245,7 @@ for k in range(0, fmax):
                 phase[j] = phase[j] - 2.0*math.pi
     if k > 0:
         dtau[k] = (-1.0/w[k]) * phase[k] # + tshift
+
 waxis = np.arange(0,fmax)*dw
 plt.plot(waxis,phase)
 plt.xlabel('Angular Frequency')
@@ -252,15 +261,11 @@ plt.show()
 # estimate error using CC
 
 # misfit function
-w_taper = np.zeros(fnum, dtype=complex)
+w_taper = np.zeros(fnum)
 
 for k in range(0, fmax):
     w_taper[k] = 1.0 - math.cos(math.pi * k/(fmax - 1))**alpha
 
-misfit = float(0.5 * 2.0 * df * np.sum((dtau[0:fmax])**2 * w_taper[0:fmax]))
+misfit = 0.5 * 2.0 * df * np.sum((dtau[0:fmax])**2 * w_taper[0:fmax])
 
 print('misfit:',misfit)
-
-
-
-
