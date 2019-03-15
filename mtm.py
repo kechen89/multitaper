@@ -117,7 +117,7 @@ nextpow2 = math.ceil(math.log2(nt))
 nfft = 2 * int(math.pow(2, nextpow2))
 f0 = 0.0
 df = 1.0/(nfft * dt)
-dw = 2*math.pi * df
+dw = 2 * math.pi * df
 fnum = int(nfft/2) + 1
 
 w = np.zeros(nfft)    # angular frequency vector
@@ -222,6 +222,12 @@ for k in range(0,fmax):
 waxis = np.arange(0,fmax)*dw
 plt.plot(waxis,phase)
 plt.title('Phase')
+plt.xlabel('Angular frequency')
+plt.show()
+
+phase1 = np.unwrap(phase)
+plt.plot(waxis,phase1)
+plt.title('Unwrapped Phase')
 plt.xlabel('Angular frequency')
 plt.show()
 
