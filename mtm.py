@@ -2,9 +2,8 @@ from scipy import signal
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-from ricker import ricker
-from shift import shift
-
+from utils import ricker
+from utils import shift
 from obspy import read
 
 # 1 - Read/synthetize data
