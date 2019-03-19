@@ -9,28 +9,28 @@ from obspy import read
 # 1 - Read/synthetize data
 
 # Synthetize data
-tmax = 12
-dt = 0.002
-nt = math.floor(tmax/dt) + 1
-t = np.arange(0,nt)*dt
-f = 1.0
+#tmax = 12
+#dt = 0.002
+#nt = math.floor(tmax/dt) + 1
+#t = np.arange(0,nt)*dt
+#f = 1.0
 
-wavelet = ricker(f, dt)
-d = np.zeros(nt)
-d[round(nt/2)] = 1.0
-d = np.convolve(d,wavelet,'same')  #observed data
+#wavelet = ricker(f, dt)
+#d = np.zeros(nt)
+#d[round(nt/2)] = 1.0
+#d = np.convolve(d,wavelet,'same')  #observed data
 
-td = 0.1                        #time delay (if td > 0, syn arrive after obs)
-s = shift(d, dt, td)            #synthetic data
+#td = 0.1                        #time delay (if td > 0, syn arrive after obs)
+#s = shift(d, dt, td)            #synthetic data
 
 # Read data
-#st = read('trival_data.sac',debug_headers=True)
-#d = st[0].data
-#st = read('trival_syn.sac',debug_headers=True)
-#s = st[0].data
-#dt = st[0].stats.delta
-#nt = st[0].stats.npts
-#t = np.arange(0,nt)*dt
+st = read('trival_data.sac',debug_headers=True)
+d = st[0].data
+st = read('trival_syn.sac',debug_headers=True)
+s = st[0].data
+dt = st[0].stats.delta
+nt = st[0].stats.npts
+t = np.arange(0,nt)*dt
 
 plt.plot(t,d,'b')
 plt.plot(t,s,'r')
@@ -119,9 +119,13 @@ df = 1.0/(nfft * dt)
 dw = 2 * math.pi * df
 fnum = int(nfft/2) + 1
 
-w = np.zeros(nfft)    # angular frequency vector
-w[0:fnum] = dw * np.arange(0,fnum)    # positive frequency
-w[fnum:nfft] = dw * np.arange(-fnum + 2, 0)  # negative frequency
+fvec = np.zeros(nfft)    # angular frequency vector
+fvec[0:fnum] = df * np.arange(0,fnum)    # positive frequency
+fvec[fnum:nfft] = df * np.arange(-fnum + 2, 0)  # negative frequency
+
+wvec = np.zeros(nfft)    # angular frequency vector
+wvec[0:fnum] = dw * np.arange(0,fnum)    # positive frequency
+wvec[fnum:nfft] = dw * np.arange(-fnum + 2, 0)  # negative frequency
 
 #Spectrum of synthetic data
 S = np.fft.fft(s,nfft)
@@ -177,6 +181,7 @@ B = np.zeros(fnum, dtype=complex)
 
 for i in range(0, ntaper):
     #apply time domain taper
+    #dtp = d_dec * dpss[i,:]
     dtp = d * dpss[i,:]
     stp = s * dpss[i,:]
     #apply FFT
@@ -211,7 +216,7 @@ for k in range(0, fnum):
     else:
         T[k] = A[k] / (B[k] + epsilon)
 
-#calculate phase
+# 11 - Calculate phase
 phase = np.zeros(fmax)
 dtau = np.zeros(fmax)
 
@@ -230,7 +235,7 @@ plt.title('Unwrapped Phase')
 plt.xlabel('Angular frequency')
 plt.show()
 
-# phase correction
+# 12 - Phase correction and Calculate time delay
 # phase correction parameters, between (PI, 2PI), use a higher value for conservative phase wrapping
 PHASE_STEP = 1.5 * math.pi
 
@@ -243,13 +248,13 @@ for k in range(0, fmax):
         smth2 = (phase[k + 1] - 2.0*math.pi) + phase[k - 1] - 2.0 * phase[k]
         
         if abs(smth1) < abs(smth) and abs(smth1) < abs(smth2) and abs(phase[k] - phase[k+1]) > PHASE_STEP:
-            for j in range(k+1, fmax):
+            for j in range(k + 1, fmax):
                 phase[j] = phase[j] + 2.0*math.pi
         if abs(smth2) < abs(smth) and abs(smth2) < abs(smth1) and abs(phase[k] - phase[k+1]) > PHASE_STEP:
             for j in range(k+1, fmax):
                 phase[j] = phase[j] - 2.0*math.pi
     if k > 0:
-        dtau[k] = (-1.0/w[k]) * phase[k] # + tshift
+        dtau[k] = (-1.0/wvec[k]) * phase[k] #+ tshift
 
 waxis = np.arange(0,fmax)*dw
 plt.plot(waxis,phase)
@@ -258,14 +263,50 @@ plt.ylabel('Phase')
 plt.title('Frequency-dependent Phase')
 plt.show()
 
-plt.plot(waxis,-dtau)
+plt.plot(waxis,dtau)
+axes = plt.gca()
+axes.set_ylim([0,4])
 plt.xlabel('Angular Frequency')
 plt.ylabel('Time delay')
 plt.title('Time delay')
 plt.show()
+
 # estimate error using CC
 
-# misfit function
+# 13 - Adjust frequency range for MT measurements
+i_left = 0
+i_right = fmax
+fstart = max(0, 1.5/(nt*dt))
+fend = 1.0/(2.0*dt)
+
+i_left_old = i_left
+i_right_old = i_right
+
+for j in range(i_left_old, i_right_old):
+    if fvec[j] > fstart :
+        i_left = j
+        break
+
+for j in range(i_left_old, i_right_old):
+    if fvec[j] > fend :
+        i_right = j
+        break
+
+fstart = i_left * df
+fend = i_right * df
+
+print('New frequency band:', fstart, fend)
+waxis = np.arange(i_left, i_right) * dw
+dtau_new = dtau[i_left:i_right]
+plt.plot(waxis,dtau_new)
+axes = plt.gca()
+axes.set_ylim([0,4])
+plt.xlabel('Frequency')
+plt.ylabel('Time delay')
+plt.title('Time delay')
+plt.show()
+
+# 14 - Misfit function (integration over frequency)
 w_taper = np.zeros(fnum)
 
 for k in range(0, fmax):
