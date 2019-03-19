@@ -7,6 +7,8 @@ from utils import shift
 from obspy import read
 
 # 1 - Read/synthetize data
+
+# Synthetize data
 tmax = 12
 dt = 0.002
 nt = math.floor(tmax/dt) + 1
@@ -21,6 +23,7 @@ d = np.convolve(d,wavelet,'same')  #observed data
 td = 0.1                        #time delay (if td > 0, syn arrive after obs)
 s = shift(d, dt, td)            #synthetic data
 
+# Read data
 #st = read('trival_data.sac',debug_headers=True)
 #d = st[0].data
 #st = read('trival_syn.sac',debug_headers=True)
@@ -35,10 +38,8 @@ plt.xlabel('Time (s)')
 plt.ylabel('Amplitude')
 plt.title('Observed (blue) and synthetic data (red)')
 plt.show()
-
-print(np.argmax(d))
-print(np.argmax(s))
 plt.magnitude_spectrum(d,Fs=1/dt)
+plt.title('Frequency Spectrum of data')
 plt.show()
 
 # 2 - Butterwoth bandpass filter data (optional)
@@ -63,7 +64,7 @@ plt.show()
 alpha = 10
 nlen = len(s)
 it_axis = np.arange(0,nlen)
-cos_taper = 1.0 - np.cos(math.pi * it_axis / (nlen - 1)) ** alpha
+cos_taper = 1.0 - (np.cos(math.pi * it_axis / (nlen - 1))) ** alpha
 d = d * cos_taper
 s = s * cos_taper
 
@@ -78,18 +79,17 @@ plt.ylabel('Amplitude')
 plt.title('Tapered observed and synthetic data')
 plt.show()
 
-# 5 - compute_cc
-cc = np.correlate(d, s, "same")
+# 5 - Compute_cc
+cc = np.correlate(d, s, "same")       # cc is not normalized
 ishift = np.argmax(cc) - int(nlen/2)
 tshift = ishift*dt
 dlnA = 0.5 * math.log(sum(d*d) / sum(s*s) )
 print('Time shift measured by cc:', tshift, 's')
 print('Amplitude difference measured by cc:', dlnA)
 
-# 6 - deconstruct_dat_cc (Apply CC -\delta T and -\delta A to the observed data prior to MTM)
+# 6 - Deconstruct_dat_cc (Apply CC -\delta T and -\delta A to the observed data prior to MTM)
 # Why?
 d_dec = np.zeros(nlen)
-
 for i in range(0, nlen):
     if (i + ishift) > 0 and (i + ishift) < nlen - 1:
         d_dec[i] = d[i + ishift]
@@ -107,8 +107,8 @@ plt.ylabel('Amplitude')
 plt.title('Synthetic data and Deconstruct data')
 plt.show()
 
-# 7 - compute_average_error (sigma_t)
-#function
+# 7 - Compute the estimated uncertainty for the cross-correlation measurement
+# based on integrated waveform difference between the data and reconstructed synthetics
 # compute_average_error
 
 # 8 - FFT parameters
