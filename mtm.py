@@ -127,17 +127,12 @@ wvec = np.zeros(nfft)    # angular frequency vector
 wvec[0:fnum] = dw * np.arange(0,fnum)    # positive frequency
 wvec[fnum:nfft] = dw * np.arange(-fnum + 2, 0)  # negative frequency
 
-#Spectrum of synthetic data
-S = np.fft.fft(s,nfft)
-spectrum = np.abs(S)
-plt.plot(spectrum)
-plt.title('Spectrum of synthetic data')
-plt.show()
-
 # Estimate stopping frequency
 WTR = 0.02
 ampmax = 0.0
 k_amp_max = 0
+S = np.fft.fft(s,nfft)
+D = np.fft.fft(d,nfft)
 
 for k in range(0, fnum):
     if  abs(S[k]) > ampmax:
@@ -160,9 +155,19 @@ for k in range(0, fnum):
 print('Stopping frequency index',fmax)
 print('Stopping frequency',fmax*df, 'Hz')
 
+#Spectrum of synthetic data
+S_SPEC = np.abs(S)
+D_SPEC = np.abs(D)
+plt.plot(wvec[0:fmax],S_SPEC[0:fmax])
+plt.plot(wvec[0:fmax],D_SPEC[0:fmax])
+plt.title('Spectrum of synthetic and observed data')
+axes = plt.gca()
+axes.set_xlim([0,1.2])
+plt.show()
+
 # 9 - DPSS
 M = len(d)
-NW = 2.5
+NW = 0.5
 Kmax = int(2.0 * NW)
 ntaper = Kmax
 dpss = signal.windows.dpss(M, NW, Kmax)
@@ -315,3 +320,8 @@ for k in range(0, fmax):
 misfit = 0.5 * 2.0 * df * np.sum((dtau[0:fmax])**2 * w_taper[0:fmax])
 
 print('misfit:',misfit)
+
+
+
+
+
